@@ -1,722 +1,473 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Green Network - Protect Earth</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>轨道对接专家：引力与质量动态</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        body { margin: 0; overflow: hidden; background-color: #0b0d10; color: #fff; font-family: 'Courier New', Courier, monospace; user-select: none; }
+        canvas { display: block; }
+        #ui-layer { position: absolute; top: 20px; left: 20px; pointer-events: none; z-index: 5; }
+        .hud-item { margin-bottom: 5px; text-shadow: 1px 1px 3px #000; background: rgba(0, 0, 0, 0.4); padding: 5px 8px; border-radius: 5px; }
+        #message-screen {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            background: rgba(0, 0, 0, 0.85); z-index: 10;
         }
-
-        :root {
-            --primary: #2e7d32;
-            --secondary: #4caf50;
-            --accent: #8bc34a;
-            --light: #e8f5e9;
-            --dark: #1b5e20;
-            --text: #333333;
-            --white: #ffffff;
-        }
-
-        body {
-            background-color: var(--light);
-            color: var(--text);
-            line-height: 1.6;
-        }
-
-        header {
-            background: linear-gradient(to right, var(--primary), var(--secondary));
-            color: var(--white);
-            padding: 1rem 0;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-
-        .container {
-            width: 90%;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .nav-container {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 1.8rem;
-            font-weight: 700;
-        }
-
-        .logo i {
-            font-size: 2rem;
-        }
-
-        nav ul {
-            display: flex;
-            list-style: none;
-        }
-
-        nav ul li {
-            margin-left: 2rem;
-        }
-
-        nav ul li a {
-            color: var(--white);
-            text-decoration: none;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            padding: 0.5rem 0;
-            position: relative;
-        }
-
-        nav ul li a:hover {
-            color: var(--accent);
-        }
-
-        nav ul li a::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 0;
-            height: 2px;
-            background-color: var(--accent);
-            transition: width 0.3s ease;
-        }
-
-        nav ul li a:hover::after {
-            width: 100%;
-        }
-
-        .hero {
-            background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.4)), url('https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2073&q=80');
-            background-size: cover;
-            background-position: center;
-            height: 80vh;
-            display: flex;
-            align-items: center;
-            text-align: center;
-            color: var(--white);
-        }
-
-        .hero-content {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        .hero h1 {
-            font-size: 3.5rem;
-            margin-bottom: 1rem;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-        }
-
-        .hero p {
-            font-size: 1.3rem;
-            margin-bottom: 2rem;
-        }
-
+        h1 { font-size: 48px; color: #4facfe; margin: 0 0 20px 0; text-transform: uppercase; letter-spacing: 5px; }
+        p { font-size: 20px; color: #ccc; text-align: center;}
         .btn {
-            display: inline-block;
-            background-color: var(--accent);
-            color: var(--white);
-            padding: 0.8rem 2rem;
-            border-radius: 50px;
-            text-decoration: none;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            border: none;
-            cursor: pointer;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-top: 30px; padding: 15px 40px; font-size: 22px;
+            background: linear-gradient(45deg, #4facfe, #00f2fe);
+            border: none; color: white; cursor: pointer; border-radius: 30px;
+            box-shadow: 0 0 15px rgba(79, 172, 254, 0.5); transition: transform 0.2s;
         }
-
-        .btn:hover {
-            background-color: var(--primary);
-            transform: translateY(-3px);
-            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
-        }
-
-        section {
-            padding: 5rem 0;
-        }
-
-        .section-title {
-            text-align: center;
-            margin-bottom: 3rem;
-        }
-
-        .section-title h2 {
-            font-size: 2.5rem;
-            color: var(--primary);
-            margin-bottom: 1rem;
-            position: relative;
-            display: inline-block;
-        }
-
-        .section-title h2::after {
-            content: '';
-            position: absolute;
-            bottom: -10px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 80px;
-            height: 4px;
-            background-color: var(--accent);
-            border-radius: 2px;
-        }
-
-        .section-title p {
-            color: var(--text);
-            max-width: 700px;
-            margin: 0 auto;
-        }
-
-        .about-content {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 3rem;
-            align-items: center;
-        }
-
-        .about-img {
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-        }
-
-        .about-img img {
-            width: 100%;
-            height: auto;
-            display: block;
-            transition: transform 0.5s ease;
-        }
-
-        .about-img:hover img {
-            transform: scale(1.05);
-        }
-
-        .about-text h3 {
-            font-size: 1.8rem;
-            margin-bottom: 1.5rem;
-            color: var(--dark);
-        }
-
-        .about-text p {
-            margin-bottom: 1.5rem;
-        }
-
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 2rem;
-            margin-top: 3rem;
-        }
-
-        .stat-item {
-            text-align: center;
-            padding: 2rem 1rem;
-            background-color: var(--white);
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-            transition: transform 0.3s ease;
-        }
-
-        .stat-item:hover {
-            transform: translateY(-10px);
-        }
-
-        .stat-item i {
-            font-size: 2.5rem;
-            color: var(--primary);
-            margin-bottom: 1rem;
-        }
-
-        .stat-item h3 {
-            font-size: 2.5rem;
-            color: var(--dark);
-            margin-bottom: 0.5rem;
-        }
-
-        .stat-item p {
-            color: var(--text);
-        }
-
-        .initiatives {
-            background-color: var(--white);
-        }
-
-        .initiatives-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 2rem;
-        }
-
-        .initiative-card {
-            background-color: var(--light);
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-            transition: transform 0.3s ease;
-        }
-
-        .initiative-card:hover {
-            transform: translateY(-10px);
-        }
-
-        .initiative-img {
-            height: 200px;
-            overflow: hidden;
-        }
-
-        .initiative-img img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.5s ease;
-        }
-
-        .initiative-card:hover .initiative-img img {
-            transform: scale(1.1);
-        }
-
-        .initiative-content {
-            padding: 1.5rem;
-        }
-
-        .initiative-content h3 {
-            font-size: 1.5rem;
-            margin-bottom: 1rem;
-            color: var(--dark);
-        }
-
-        .initiative-content p {
-            margin-bottom: 1.5rem;
-        }
-
-        .cta {
-            background: linear-gradient(to right, var(--primary), var(--secondary));
-            color: var(--white);
-            text-align: center;
-            padding: 5rem 0;
-        }
-
-        .cta h2 {
-            font-size: 2.5rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .cta p {
-            font-size: 1.2rem;
-            margin-bottom: 2rem;
-            max-width: 700px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        .cta .btn {
-            background-color: var(--white);
-            color: var(--primary);
-        }
-
-        .cta .btn:hover {
-            background-color: var(--accent);
-            color: var(--white);
-        }
-
-        footer {
-            background-color: var(--dark);
-            color: var(--white);
-            padding: 3rem 0 1rem;
-        }
-
-        .footer-content {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 2rem;
-            margin-bottom: 2rem;
-        }
-
-        .footer-column h3 {
-            font-size: 1.3rem;
-            margin-bottom: 1.5rem;
-            position: relative;
-            padding-bottom: 10px;
-        }
-
-        .footer-column h3::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 40px;
-            height: 2px;
-            background-color: var(--accent);
-        }
-
-        .footer-column p {
-            margin-bottom: 1rem;
-        }
-
-        .footer-links {
-            list-style: none;
-        }
-
-        .footer-links li {
-            margin-bottom: 0.8rem;
-        }
-
-        .footer-links li a {
-            color: var(--light);
-            text-decoration: none;
-            transition: all 0.3s ease;
-        }
-
-        .footer-links li a:hover {
-            color: var(--accent);
-            padding-left: 5px;
-        }
-
-        .social-links {
-            display: flex;
-            gap: 1rem;
-        }
-
-        .social-links a {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 40px;
-            height: 40px;
-            background-color: rgba(255, 255, 255, 0.1);
-            border-radius: 50%;
-            color: var(--white);
-            text-decoration: none;
-            transition: all 0.3s ease;
-        }
-
-        .social-links a:hover {
-            background-color: var(--accent);
-            transform: translateY(-5px);
-        }
-
-        .copyright {
-            text-align: center;
-            padding-top: 2rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .mobile-menu {
-            display: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-        }
-
-        @media (max-width: 992px) {
-            .about-content {
-                grid-template-columns: 1fr;
-            }
-            
-            .initiatives-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            
-            .footer-content {
-                grid-template-columns: repeat(2, 1fr);
-            }
-            
-            .stats {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
-        @media (max-width: 768px) {
-            .hero h1 {
-                font-size: 2.5rem;
-            }
-            
-            .hero p {
-                font-size: 1.1rem;
-            }
-            
-            nav ul {
-                display: none;
-                position: absolute;
-                top: 100%;
-                left: 0;
-                width: 100%;
-                background-color: var(--primary);
-                flex-direction: column;
-                padding: 1rem 0;
-                text-align: center;
-                box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
-            }
-            
-            nav ul.active {
-                display: flex;
-            }
-            
-            nav ul li {
-                margin: 0;
-                padding: 0.8rem 0;
-            }
-            
-            .mobile-menu {
-                display: block;
-            }
-            
-            .initiatives-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .footer-content {
-                grid-template-columns: 1fr;
-            }
-            
-            .stats {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        /* Animation for stats counter */
-        .counter {
-            transition: all 0.5s ease;
-        }
+        .btn:hover { transform: scale(1.05); }
+        .hidden { display: none !important; }
+        
+        /* 仪表盘颜色 */
+        .good { color: #00ff00; }
+        .warn { color: #ffff00; }
+        .bad { color: #ff3333; }
     </style>
 </head>
 <body>
-    <!-- Header -->
-    <header>
-        <div class="container nav-container">
-            <div class="logo">
-                <i class="fas fa-seedling"></i>
-                <span>Green Network</span>
-            </div>
-            <nav>
-                <div class="mobile-menu">
-                    <i class="fas fa-bars"></i>
-                </div>
-                <ul>
-                    <li><a href="#home">Home</a></li>
-                    <li><a href="#about">About</a></li>
-                    <li><a href="#initiatives">Initiatives</a></li>
-                    <li><a href="#get-involved">Get Involved</a></li>
-                    <li><a href="#contact">Contact</a></li>
-                </ul>
-            </nav>
-        </div>
-    </header>
 
-    <!-- Hero Section -->
-    <section class="hero" id="home">
-        <div class="container hero-content">
-            <h1>Protect Our Planet, Preserve Our Future</h1>
-            <p>Join the global movement to create a sustainable world through conservation, education, and community action.</p>
-            <a href="#get-involved" class="btn">Join Our Network</a>
-        </div>
-    </section>
+<div id="ui-layer">
+    <div class="hud-item">燃料: <span id="fuel-display">100%</span></div>
+    <div class="hud-item">垂直速度: <span id="speed-y-display" class="good">0.00</span> m/s</div>
+    <div class="hud-item">径向速度: <span id="radial-speed-display" class="good">0.00</span> m/s</div>
+    <div class="hud-item">切向速度: <span id="tangential-speed-display" class="good">0.00</span> m/s</div>
+    <div class="hud-item">角度偏差: <span id="angle-display" class="good">0.00</span>°</div>
+</div>
 
-    <!-- About Section -->
-    <section id="about">
-        <div class="container">
-            <div class="section-title">
-                <h2>About Green Network</h2>
-                <p>We are a global community dedicated to environmental protection and sustainable development.</p>
-            </div>
-            <div class="about-content">
-                <div class="about-img">
-                    <img src="https://images.unsplash.com/photo-1507591064344-4c6ce005b128?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80" alt="Team planting trees">
-                </div>
-                <div class="about-text">
-                    <h3>Our Mission</h3>
-                    <p>Green Network is committed to creating a sustainable future by protecting natural ecosystems, promoting renewable energy, and empowering communities to take environmental action.</p>
-                    <p>Founded in 2010, we've grown from a small grassroots organization to an international network with over 50,000 members across 120 countries.</p>
-                    <p>Our approach combines scientific research, community engagement, and policy advocacy to address the most pressing environmental challenges of our time.</p>
-                    <a href="#" class="btn">Learn More</a>
-                </div>
-            </div>
-            <div class="stats">
-                <div class="stat-item">
-                    <i class="fas fa-tree"></i>
-                    <h3 class="counter" data-target="2500000">0</h3>
-                    <p>Trees Planted</p>
-                </div>
-                <div class="stat-item">
-                    <i class="fas fa-users"></i>
-                    <h3 class="counter" data-target="50000">0</h3>
-                    <p>Active Members</p>
-                </div>
-                <div class="stat-item">
-                    <i class="fas fa-globe-americas"></i>
-                    <h3 class="counter" data-target="120">0</h3>
-                    <p>Countries Reached</p>
-                </div>
-                <div class="stat-item">
-                    <i class="fas fa-recycle"></i>
-                    <h3 class="counter" data-target="1500">0</h3>
-                    <p>Cleanup Projects</p>
-                </div>
-            </div>
-        </div>
-    </section>
+<div id="message-screen">
+    <h1 id="title-text">轨道对接专家</h1>
+    <p>操作指南：[W] 推进 (注意质量动态!) | [A/D] 旋转</p>
+    <p style="font-size: 16px; margin-top:10px; color:#aaa;">对接要求：径向速度(靠近) < 2.0，切向速度 < 0.5，角度偏差 < 15°</p>
+    <button class="btn" id="start-btn">启动引擎</button>
+</div>
 
-    <!-- Initiatives Section -->
-    <section class="initiatives" id="initiatives">
-        <div class="container">
-            <div class="section-title">
-                <h2>Our Initiatives</h2>
-                <p>Discover the key programs and projects we're implementing to protect our planet.</p>
-            </div>
-            <div class="initiatives-grid">
-                <div class="initiative-card">
-                    <div class="initiative-img">
-                        <img src="https://dialogue.earth/content/uploads/2021/04/lessons-from-the-rush-to-reforest-china-dialogue-2400x1599.jpg" alt="Reforestation">
-                    </div>
-                    <div class="initiative-content">
-                        <h3>Global Reforestation</h3>
-                        <p>Planting millions of trees worldwide to restore ecosystems, combat climate change, and protect biodiversity.</p>
-                        <a href="#" class="btn">Learn More</a>
-                    </div>
-                </div>
-                <div class="initiative-card">
-                    <div class="initiative-img">
-                        <img src="https://images.unsplash.com/photo-1621451537084-482c73073a0f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1974&q=80" alt="Ocean Conservation">
-                    </div>
-                    <div class="initiative-content">
-                        <h3>Ocean Conservation</h3>
-                        <p>Protecting marine ecosystems, reducing plastic pollution, and promoting sustainable fishing practices.</p>
-                        <a href="#" class="btn">Learn More</a>
-                    </div>
-                </div>
-                <div class="initiative-card">
-                    <div class="initiative-img">
-                        <img src="https://images.unsplash.com/photo-1508514177221-188b1cf16e9d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2072&q=80" alt="Renewable Energy">
-                    </div>
-                    <div class="initiative-content">
-                        <h3>Renewable Energy</h3>
-                        <p>Promoting solar, wind, and other clean energy sources to reduce dependence on fossil fuels.</p>
-                        <a href="#" class="btn">Learn More</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+<canvas id="gameCanvas"></canvas>
 
-    <!-- CTA Section -->
-    <section class="cta" id="get-involved">
-        <div class="container">
-            <h2>Join Our Global Movement</h2>
-            <p>Together, we can create a sustainable future for generations to come. Every action counts, no matter how small.</p>
-            <a href="#" class="btn">Become a Member</a>
-        </div>
-    </section>
+<script>
+/** * 游戏核心配置与科学常数 
+ */
+const CONFIG = {
+    GRAVITY: 0.03,               // 重力加速度
+    THRUST_POWER: 15,            // 基础推力 (牛顿)
+    ROTATION_SPEED: 0.06,        // 旋转速度 (弧度)
+    FUEL_CONSUMPTION: 0.15,      // 燃料消耗率 (每帧)
+    
+    BASE_MASS: 100,              // 火箭结构质量 (kg)
+    FUEL_MASS_INITIAL: 80,       // 初始燃料质量 (kg)
 
-    <!-- Footer -->
-    <footer id="contact">
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-column">
-                    <h3>Green Network</h3>
-                    <p>We are dedicated to protecting our planet through collaborative action, education, and sustainable solutions.</p>
-                    <div class="social-links">
-                        <a href="#"><i class="fab fa-facebook-f"></i></a>
-                        <a href="#"><i class="fab fa-twitter"></i></a>
-                        <a href="#"><i class="fab fa-instagram"></i></a>
-                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
-                    </div>
-                </div>
-                <div class="footer-column">
-                    <h3>Quick Links</h3>
-                    <ul class="footer-links">
-                        <li><a href="#home">Home</a></li>
-                        <li><a href="#about">About Us</a></li>
-                        <li><a href="#initiatives">Initiatives</a></li>
-                        <li><a href="#get-involved">Get Involved</a></li>
-                        <li><a href="#contact">Contact</a></li>
-                    </ul>
-                </div>
-                <div class="footer-column">
-                    <h3>Our Programs</h3>
-                    <ul class="footer-links">
-                        <li><a href="#">Reforestation</a></li>
-                        <li><a href="#">Ocean Cleanup</a></li>
-                        <li><a href="#">Wildlife Protection</a></li>
-                        <li><a href="#">Climate Education</a></li>
-                        <li><a href="#">Sustainable Agriculture</a></li>
-                    </ul>
-                </div>
-                <div class="footer-column">
-                    <h3>Contact Us</h3>
-                    <p><i class="fas fa-map-marker-alt"></i> Copper Creek Drive, New York</p>
-                    <p><i class="fas fa-phone"></i> +1 (312) 171-0771</p>
-                    <p><i class="fas fa-envelope"></i> support@greennetwork.org</p>
-                </div>
-            </div>
-            <div class="copyright">
-                <p>&copy; 2025 Green Network. All rights reserved.</p>
-            </div>
-        </div>
-    </footer>
+    DOCK_TOLERANCE_DIST: 30,     // 对接距离判定
+    DOCK_MAX_RADIAL_SPEED: 2.0,  // 对接最大径向速度
+    DOCK_MAX_TANGENTIAL_SPEED: 0.5, // 对接最大切向速度 (新增的科学要求)
+    DOCK_MAX_ANGLE: 0.25,        // 对接最大角度偏差 (弧度, 约15度)
+    FRICTION: 0.998              // 空间微阻力
+};
 
-    <script>
-        // Mobile Menu Toggle
-        document.querySelector('.mobile-menu').addEventListener('click', function() {
-            document.querySelector('nav ul').classList.toggle('active');
-        });
+// 游戏状态
+let gameState = 'START'; // START, PLAYING, SUCCESS, FAIL
+let canvas, ctx;
+let keys = { w: false, a: false, d: false };
 
-        // Counter Animation
-        function animateCounters() {
-            const counters = document.querySelectorAll('.counter');
-            const speed = 200; // The lower the slower
+// 全局抖动变量 (趣味性增强)
+let shakeIntensity = 0;
+let shakeDuration = 0;
+
+// 实体对象
+let rocket, station, stars = [], particles = [];
+
+/** * 屏幕抖动函数 (趣味性)
+ */
+function screenShake(intensity, duration) {
+    shakeIntensity = intensity;
+    shakeDuration = duration;
+}
+
+class Rocket {
+    constructor() {
+        this.reset();
+    }
+
+    reset() {
+        this.x = canvas.width / 2;
+        this.y = canvas.height - 100;
+        this.vx = 0;
+        this.vy = 0;
+        this.angle = -Math.PI / 2; // 朝上
+        this.fuel = 100; // 百分比
+        this.baseMass = CONFIG.BASE_MASS;
+        this.fuelMassInitial = CONFIG.FUEL_MASS_INITIAL;
+        this.active = true;
+    }
+
+    update() {
+        if (!this.active || gameState !== 'PLAYING') return;
+
+        // 1. 科学性：计算当前总质量 (质量动态)
+        const currentMass = this.baseMass + (this.fuel / 100) * this.fuelMassInitial;
+
+        // 2. 物理计算
+        // 重力影响 (加速度 A = F / M，这里我们简化重力，但保持推力受质量影响)
+        this.vy += CONFIG.GRAVITY;
+
+        // 旋转
+        if (keys.a) this.angle -= CONFIG.ROTATION_SPEED;
+        if (keys.d) this.angle += CONFIG.ROTATION_SPEED;
+
+        // 推力
+        if (keys.w && this.fuel > 0) {
+            // F / M = A: 推力效果除以当前总质量
+            const effectiveAcceleration = CONFIG.THRUST_POWER / currentMass; 
+
+            this.vx += Math.cos(this.angle) * effectiveAcceleration;
+            this.vy += Math.sin(this.angle) * effectiveAcceleration;
             
-            counters.forEach(counter => {
-                const target = +counter.getAttribute('data-target');
-                const count = +counter.innerText;
-                
-                const inc = target / speed;
-                
-                if(count < target) {
-                    counter.innerText = Math.ceil(count + inc);
-                    setTimeout(animateCounters, 1);
-                } else {
-                    counter.innerText = target;
-                }
-            });
+            // 燃料消耗
+            this.fuel = Math.max(0, this.fuel - CONFIG.FUEL_CONSUMPTION);
+            
+            // 趣味性：屏幕抖动和粒子
+            screenShake(1.5, 3);
+            createParticles(this.x, this.y, this.angle + Math.PI, 5);
         }
 
-        // Initialize counters when page loads
-        window.addEventListener('load', animateCounters);
+        // 阻力/摩擦
+        this.vx *= CONFIG.FRICTION;
+        this.vy *= CONFIG.FRICTION;
 
-        // Smooth scrolling for navigation links
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function(e) {
-                e.preventDefault();
-                
-                const targetId = this.getAttribute('href');
-                if(targetId === '#') return;
-                
-                const targetElement = document.querySelector(targetId);
-                if(targetElement) {
-                    window.scrollTo({
-                        top: targetElement.offsetTop - 80,
-                        behavior: 'smooth'
-                    });
-                    
-                    document.querySelector('nav ul').classList.remove('active');
-                }
-            });
-        });
-    </script>
+        // 位置更新
+        this.x += this.vx;
+        this.y += this.vy;
+
+        // 边界碰撞 (地面)
+        if (this.y > canvas.height - 10) {
+            if (Math.abs(this.vy) > 3) {
+                endGame(false, "撞击地面！速度过快导致解体。");
+            } else {
+                this.y = canvas.height - 10;
+                this.vy = 0;
+                this.vx = 0;
+            }
+        }
+        
+        // 边界限制 (左右顶)
+        if (this.x < 0) this.x = canvas.width;
+        if (this.x > canvas.width) this.x = 0;
+        if (this.y < -50) this.y = -50; // 防止飞出太远
+
+        // 对接检测 (科学性增强)
+        this.checkDocking();
+    }
+
+    checkDocking() {
+        // 计算与接口的相对位置
+        const dx = station.dockX - this.x;
+        const dy = station.dockY - this.y;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+
+        // 1. 科学性：计算径向和切向速度
+        const totalSpeed = Math.sqrt(this.vx*this.vx + this.vy*this.vy);
+        
+        let radialVelocity = 0;
+        let tangentialVelocity = totalSpeed;
+
+        if (dist > 0.01) { // 避免除以零
+            const ux = dx / dist; // 径向单位向量 X
+            const uy = dy / dist; // 径向单位向量 Y
+
+            // 径向速度 (速度点积径向单位向量): 负值表示靠近目标
+            radialVelocity = (this.vx * ux + this.vy * uy); 
+            
+            // 切向速度 (总速度减去径向速度在切向上的分量)
+            tangentialVelocity = Math.sqrt(totalSpeed*totalSpeed - radialVelocity*radialVelocity);
+        }
+        
+        // 角度差 (目标角度是 -PI/2)
+        let angleDiff = Math.abs(normalizeAngle(this.angle) - (-Math.PI/2));
+        if (angleDiff > Math.PI) angleDiff = 2 * Math.PI - angleDiff;
+
+        // 更新HUD数据
+        updateHUD(this.vy, radialVelocity, tangentialVelocity, angleDiff, this.fuel);
+
+        // 判定碰撞/对接
+        if (dist < CONFIG.DOCK_TOLERANCE_DIST) {
+            let success = true;
+            let reason = [];
+            
+            // 对接要求判定
+            if (Math.abs(radialVelocity) > CONFIG.DOCK_MAX_RADIAL_SPEED) {
+                 success = false; reason.push(`径向速度过大 (${radialVelocity.toFixed(1)} > ${CONFIG.DOCK_MAX_RADIAL_SPEED})`);
+            }
+            if (tangentialVelocity > CONFIG.DOCK_MAX_TANGENTIAL_SPEED) {
+                success = false; reason.push(`切向速度过高 (${tangentialVelocity.toFixed(1)} > ${CONFIG.DOCK_MAX_TANGENTIAL_SPEED})`);
+            }
+            if (angleDiff > CONFIG.DOCK_MAX_ANGLE) {
+                success = false; reason.push(`角度偏差过大 (${(angleDiff*180/Math.PI).toFixed(0)}° > ${CONFIG.DOCK_MAX_ANGLE*180/Math.PI}°)`);
+            }
+
+            if (success) {
+                endGame(true, "对接成功！你是轨道力学专家。");
+            } else {
+                endGame(false, "对接失败：撞击速度过大或姿态不正。" + reason.join(" | "));
+            }
+        }
+    }
+
+    draw() {
+        if (!this.active) return;
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.rotate(this.angle);
+
+        // 火箭主体 (白色)
+        ctx.fillStyle = this.fuel > 0 ? '#fff' : '#888';
+        ctx.beginPath();
+        ctx.moveTo(15, 0);      // 头部尖端
+        ctx.lineTo(-10, 10);    // 右翼尖
+        ctx.lineTo(-5, 0);      // 尾部中心
+        ctx.lineTo(-10, -10);   // 左翼尖
+        ctx.closePath();
+        ctx.fill();
+
+        // 驾驶舱窗户 (蓝色)
+        ctx.fillStyle = '#4facfe';
+        ctx.beginPath();
+        ctx.arc(0, 0, 3, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.restore();
+    }
+}
+
+class Station {
+    constructor() {
+        this.x = canvas.width / 2;
+        this.y = 150;
+        this.dockX = this.x;
+        this.dockY = this.y + 35; // 接口在中心下方
+    }
+
+    draw() {
+        ctx.save();
+        ctx.translate(this.x, this.y);
+
+        // 太阳能板
+        ctx.fillStyle = '#333';
+        ctx.strokeStyle = '#4facfe';
+        ctx.lineWidth = 2;
+        ctx.fillRect(-60, -10, 120, 20);
+        ctx.strokeRect(-60, -10, 120, 20);
+
+        // 核心舱
+        ctx.fillStyle = '#ddd';
+        ctx.beginPath();
+        ctx.arc(0, 0, 25, 0, Math.PI * 2);
+        ctx.fill();
+
+        // 对接接口 (绿色表示目标)
+        ctx.fillStyle = '#0f0';
+        ctx.fillRect(-5, 25, 10, 10);
+        
+        // 趣味性增强：对接目标框 (Targeting Box)
+        ctx.strokeStyle = 'rgba(79, 172, 254, 0.6)'; // 蓝色
+        ctx.lineWidth = 2;
+        ctx.setLineDash([5, 5]);
+        ctx.strokeRect(-30, 30, 60, 60); 
+
+        // 引导线
+        ctx.strokeStyle = 'rgba(0, 255, 0, 0.2)';
+        ctx.beginPath();
+        ctx.moveTo(0, 35);
+        ctx.lineTo(0, 200);
+        ctx.stroke();
+        ctx.setLineDash([]); // 重置虚线
+
+        ctx.restore();
+    }
+}
+
+class Particle { /* ... (Particle class remains the same) ... */
+    constructor(x, y, angle, speed) {
+        this.x = x;
+        this.y = y;
+        const spread = 0.5;
+        const finalAngle = angle + (Math.random() - 0.5) * spread;
+        this.vx = Math.cos(finalAngle) * speed;
+        this.vy = Math.sin(finalAngle) * speed;
+        this.life = 1.0;
+        this.decay = 0.03 + Math.random() * 0.03;
+    }
+
+    update() {
+        this.x += this.vx;
+        this.y += this.vy;
+        this.life -= this.decay;
+    }
+
+    draw() {
+        ctx.fillStyle = `rgba(255, ${Math.floor(this.life * 255)}, 0, ${this.life})`;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, 2 + this.life * 3, 0, Math.PI * 2);
+        ctx.fill();
+    }
+}
+
+// 辅助函数：角度归一化到 -PI ~ PI
+function normalizeAngle(a) {
+    a = a % (2 * Math.PI);
+    if (a > Math.PI) a -= 2 * Math.PI;
+    if (a < -Math.PI) a += 2 * Math.PI;
+    return a;
+}
+
+function createParticles(x, y, angle, count) {
+    for(let i=0; i<count; i++) {
+        // 粒子从火箭尾部生成，稍微向后偏移
+        const pX = x - Math.cos(angle) * 15;
+        const pY = y - Math.sin(angle) * 15;
+        particles.push(new Particle(pX, pY, angle, Math.random() * 2 + 1));
+    }
+}
+
+function init() {
+    canvas = document.getElementById('gameCanvas');
+    ctx = canvas.getContext('2d');
+    resize();
+    window.addEventListener('resize', resize);
+    
+    // 输入监听
+    window.addEventListener('keydown', e => setKey(e.key, true));
+    window.addEventListener('keyup', e => setKey(e.key, false));
+    
+    const btn = document.getElementById('start-btn');
+    btn.addEventListener('click', startGame);
+
+    // 生成背景星空
+    for(let i=0; i<100; i++) {
+        stars.push({ x: Math.random() * window.innerWidth, y: Math.random() * window.innerHeight, size: Math.random() * 2, alpha: Math.random() });
+    }
+
+    rocket = new Rocket();
+    station = new Station();
+
+    loop();
+}
+
+function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    if (station) station.x = canvas.width / 2;
+    if (rocket && gameState === 'START') rocket.x = canvas.width / 2;
+}
+
+function setKey(k, s) {
+    if (k === 'w' || k === 'ArrowUp') keys.w = s;
+    if (k === 'a' || k === 'ArrowLeft') keys.a = s;
+    if (k === 'd' || k === 'ArrowRight') keys.d = s;
+}
+
+function startGame() {
+    document.getElementById('message-screen').classList.add('hidden');
+    rocket.reset();
+    particles = [];
+    gameState = 'PLAYING';
+}
+
+function endGame(success, msg) {
+    gameState = success ? 'SUCCESS' : 'FAIL';
+    const screen = document.getElementById('message-screen');
+    const title = document.getElementById('title-text');
+    const btn = document.getElementById('start-btn');
+    const p = screen.querySelector('p:nth-of-type(1)'); 
+
+    screen.classList.remove('hidden');
+    title.innerText = success ? "任务完成" : "任务失败";
+    title.style.color = success ? "#00ff00" : "#ff3333";
+    p.innerText = msg;
+    btn.innerText = "重新尝试";
+}
+
+function updateHUD(speedY, radialSpeed, tangentialSpeed, angleDiff, fuel) {
+    const syEl = document.getElementById('speed-y-display');
+    const rsEl = document.getElementById('radial-speed-display');
+    const tsEl = document.getElementById('tangential-speed-display');
+    const aEl = document.getElementById('angle-display');
+    const fEl = document.getElementById('fuel-display');
+
+    // 格式化数据
+    let angleDeg = (angleDiff * 180 / Math.PI).toFixed(1);
+    
+    // 垂直速度 (仅显示，不参与严格判定)
+    syEl.innerText = speedY.toFixed(2); 
+
+    // 径向速度 (必须接近0，但可以略微靠近目标)
+    rsEl.innerText = radialSpeed.toFixed(2);
+    rsEl.className = Math.abs(radialSpeed) > CONFIG.DOCK_MAX_RADIAL_SPEED ? 'bad' : 'good';
+    
+    // 切向速度 (必须接近0，这是对接的关键)
+    tsEl.innerText = tangentialSpeed.toFixed(2);
+    tsEl.className = tangentialSpeed > CONFIG.DOCK_MAX_TANGENTIAL_SPEED ? 'bad' : 'good';
+
+    // 角度
+    aEl.innerText = angleDeg;
+    aEl.className = angleDiff > CONFIG.DOCK_MAX_ANGLE ? 'bad' : 'good';
+    
+    // 燃料
+    fEl.innerText = Math.floor(fuel) + '%';
+    fEl.className = fuel < 20 ? 'bad' : (fuel < 50 ? 'warn' : 'good');
+}
+
+function loop() {
+    requestAnimationFrame(loop);
+
+    // 趣味性：应用屏幕抖动
+    ctx.save();
+    let offsetX = 0, offsetY = 0;
+    if (shakeDuration > 0) {
+        offsetX = Math.random() * shakeIntensity * 2 - shakeIntensity;
+        offsetY = Math.random() * shakeIntensity * 2 - shakeIntensity;
+        shakeDuration--;
+    }
+    ctx.translate(offsetX, offsetY);
+
+    // 清屏
+    ctx.fillStyle = '#0b0d10';
+    ctx.fillRect(0 - offsetX, 0 - offsetY, canvas.width, canvas.height); // 需要抵消translate，或者直接清空，然后save/restore
+
+    // 绘制星空
+    ctx.fillStyle = '#fff';
+    stars.forEach(star => {
+        ctx.globalAlpha = star.alpha;
+        ctx.beginPath();
+        ctx.arc(star.x, star.y, star.size, 0, Math.PI*2);
+        ctx.fill();
+    });
+    ctx.globalAlpha = 1.0;
+
+    // 游戏逻辑更新
+    if (gameState === 'PLAYING') {
+        rocket.update();
+        
+        // 粒子更新
+        for (let i = particles.length - 1; i >= 0; i--) {
+            particles[i].update();
+            particles[i].draw();
+            if (particles[i].life <= 0) particles.splice(i, 1);
+        }
+    }
+
+    // 绘制实体
+    station.draw();
+    rocket.draw();
+
+    ctx.restore(); // 结束抖动影响
+}
+
+init();
+
+</script>
 </body>
-
 </html>
